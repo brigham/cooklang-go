@@ -76,6 +76,7 @@ type IngredientAmount struct {
 type Ingredient struct {
 	Name   string           // name of the ingredient
 	Amount IngredientAmount // optional ingredient amount (default: 1)
+	Note   string           `json:"Note,omitempty"` // optional preparation note
 }
 
 type IngredientV2 struct {
@@ -83,6 +84,7 @@ type IngredientV2 struct {
 	Name     string   `json:"name"`
 	Quantity float64  `json:"quantity"`
 	Units    string   `json:"units,omitempty"`
+	Note     string   `json:"note,omitempty"`
 }
 
 func (i Ingredient) asIngredientV2() IngredientV2 {
@@ -91,6 +93,7 @@ func (i Ingredient) asIngredientV2() IngredientV2 {
 		Name:     i.Name,
 		Quantity: i.Amount.Quantity,
 		Units:    i.Amount.Unit,
+		Note:     i.Note,
 	}
 }
 
@@ -592,6 +595,13 @@ func getCookware(line string) (*Cookware, int, error) {
 func getIngredient(line string) (*Ingredient, int, error) {
 	endIndex := findNodeEndIndex(line)
 	ingredient, err := getIngredientFromRawString(line[1:endIndex])
+	if err == nil && endIndex < len(line) && line[endIndex] == '(' {
+		noteEnd := strings.Index(line[endIndex:], ")")
+		if noteEnd != -1 {
+			ingredient.Note = line[endIndex+1 : endIndex+noteEnd]
+			endIndex += noteEnd + 1
+		}
+	}
 	return ingredient, endIndex, err
 }
 
@@ -652,6 +662,10 @@ func findNodeEndIndex(line string) int {
 	}
 	if endIndex == -1 {
 		endIndex = strings.Index(line, " ")
+		parenIndex := strings.Index(line, "(")
+		if parenIndex != -1 && (endIndex == -1 || parenIndex < endIndex) {
+			endIndex = parenIndex
+		}
 		if endIndex == -1 {
 			endIndex = len(line)
 		}

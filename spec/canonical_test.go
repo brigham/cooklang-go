@@ -18,6 +18,7 @@ type Result struct {
 		Name     string      `json:"name,omitempty"`
 		Quantity interface{} `json:"quantity,omitempty"`
 		Units    string      `json:"units,omitempty"`
+		Note     string      `json:"note,omitempty"`
 	} `json:"steps"`
 	Metadata interface{} `json:"metadata"`
 }

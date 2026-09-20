@@ -59,13 +59,13 @@
       }
     },
     "testDirectionsWithDegrees": {
-      "source": "Heat oven up to 200°C\n",
+      "source": "Heat oven up to 200\u00b0C\n",
       "result": {
         "steps": [
           [
             {
               "type": "text",
-              "value": "Heat oven up to 200°C"
+              "value": "Heat oven up to 200\u00b0C"
             }
           ]
         ],
@@ -338,7 +338,7 @@
       }
     },
     "testIngredientWithEmoji": {
-      "source": "Add some @🧂\n",
+      "source": "Add some @\ud83e\uddc2\n",
       "result": {
         "steps": [
           [
@@ -348,7 +348,7 @@
             },
             {
               "type": "ingredient",
-              "name": "🧂",
+              "name": "\ud83e\uddc2",
               "quantity": "some",
               "units": ""
             }
@@ -644,13 +644,13 @@
       }
     },
     "testSlashInText": {
-      "source": "Preheat the oven to 200℃/Fan 180°C.\n",
+      "source": "Preheat the oven to 200\u2103/Fan 180\u00b0C.\n",
       "result": {
         "steps": [
           [
             {
               "type": "text",
-              "value": "Preheat the oven to 200℃/Fan 180°C."
+              "value": "Preheat the oven to 200\u2103/Fan 180\u00b0C."
             }
           ]
         ],
@@ -786,7 +786,7 @@
       }
     },
     "testSingleWordTimerWithUnicodePunctuation": {
-      "source": "Let it ~rest⸫ then serve\n",
+      "source": "Let it ~rest\u2e2b then serve\n",
       "result": {
         "steps": [
           [
@@ -802,7 +802,7 @@
             },
             {
               "type": "text",
-              "value": "⸫ then serve"
+              "value": "\u2e2b then serve"
             }
           ]
         ],
@@ -810,7 +810,7 @@
       }
     },
     "testTimerWithUnicodeWhitespace": {
-      "source": "Let it ~rest then serve\n",
+      "source": "Let it ~rest\u2009then serve\n",
       "result": {
         "steps": [
           [
@@ -826,7 +826,7 @@
             },
             {
               "type": "text",
-              "value": " then serve"
+              "value": "\u2009then serve"
             }
           ]
         ],
@@ -886,7 +886,7 @@
       }
     },
     "testSingleWordIngredientWithUnicodePunctuation": {
-      "source": "Add @chilli⸫ then bake\n",
+      "source": "Add @chilli\u2e2b then bake\n",
       "result": {
         "steps": [
           [
@@ -902,7 +902,7 @@
             },
             {
               "type": "text",
-              "value": "⸫ then bake"
+              "value": "\u2e2b then bake"
             }
           ]
         ],
@@ -910,7 +910,7 @@
       }
     },
     "testIngredientWithUnicodeWhitespace": {
-      "source": "Add @chilli then bake\n",
+      "source": "Add @chilli\u2009then bake\n",
       "result": {
         "steps": [
           [
@@ -926,7 +926,7 @@
             },
             {
               "type": "text",
-              "value": " then bake"
+              "value": "\u2009then bake"
             }
           ]
         ],
@@ -986,7 +986,7 @@
       }
     },
     "testSingleWordCookwareWithUnicodePunctuation": {
-      "source": "Place in #pot⸫ then boil\n",
+      "source": "Place in #pot\u2e2b then boil\n",
       "result": {
         "steps": [
           [
@@ -1002,7 +1002,7 @@
             },
             {
               "type": "text",
-              "value": "⸫ then boil"
+              "value": "\u2e2b then boil"
             }
           ]
         ],
@@ -1010,7 +1010,7 @@
       }
     },
     "testCookwareWithUnicodeWhitespace": {
-      "source": "Add to #pot then boil\n",
+      "source": "Add to #pot\u2009then boil\n",
       "result": {
         "steps": [
           [
@@ -1026,7 +1026,7 @@
             },
             {
               "type": "text",
-              "value": " then boil"
+              "value": "\u2009then boil"
             }
           ]
         ],
@@ -1055,6 +1055,27 @@
             {
               "type": "text",
               "value": "Recipe # 5"
+            }
+          ]
+        ],
+        "metadata": {}
+      }
+    },
+    "testIngredientWithPreparation": {
+      "source": "Mix @onion{1}(peeled and finely chopped)\n",
+      "result": {
+        "steps": [
+          [
+            {
+              "type": "text",
+              "value": "Mix "
+            },
+            {
+              "type": "ingredient",
+              "name": "onion",
+              "quantity": 1,
+              "units": "",
+              "note": "peeled and finely chopped"
             }
           ]
         ],

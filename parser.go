@@ -46,6 +46,7 @@ type CommentType int
 type Cookware struct {
 	IsNumeric   bool    // true if the amount is numeric
 	Name        string  // cookware name
+	Alias       string  `json:"Alias,omitempty"` // display name alias
 	Quantity    float64 // quantity of the cookware
 	QuantityRaw string  // quantity of the cookware as raw text
 }
@@ -53,6 +54,7 @@ type Cookware struct {
 type CookwareV2 struct {
 	Type     ItemType `json:"type"`
 	Name     string   `json:"name"`
+	Alias    string   `json:"alias,omitempty"`
 	Quantity float64  `json:"quantity"`
 }
 
@@ -60,6 +62,7 @@ func (c Cookware) asCookwareV2() CookwareV2 {
 	return CookwareV2{
 		Type:     ItemTypeCookware,
 		Name:     c.Name,
+		Alias:    c.Alias,
 		Quantity: c.Quantity,
 	}
 }
@@ -75,6 +78,7 @@ type IngredientAmount struct {
 // Ingredient represents a recipe ingredient
 type Ingredient struct {
 	Name   string           // name of the ingredient
+	Alias  string           `json:"Alias,omitempty"` // display name alias
 	Amount IngredientAmount // optional ingredient amount (default: 1)
 	Note   string           `json:"Note,omitempty"` // optional preparation note
 }
@@ -82,6 +86,7 @@ type Ingredient struct {
 type IngredientV2 struct {
 	Type     ItemType `json:"type"`
 	Name     string   `json:"name"`
+	Alias    string   `json:"alias,omitempty"`
 	Quantity float64  `json:"quantity"`
 	Units    string   `json:"units,omitempty"`
 	Note     string   `json:"note,omitempty"`
@@ -91,6 +96,7 @@ func (i Ingredient) asIngredientV2() IngredientV2 {
 	return IngredientV2{
 		Type:     ItemTypeIngredient,
 		Name:     i.Name,
+		Alias:    i.Alias,
 		Quantity: i.Amount.Quantity,
 		Units:    i.Amount.Unit,
 		Note:     i.Note,
@@ -414,7 +420,11 @@ func parseStepCB(line string, cb func(item any) (bool, error)) (string, error) {
 					return directions.String(), err
 				}
 				skipIndex = index + skipNext
-				directions.WriteString((*ingredient).Name)
+				if (*ingredient).Alias != "" {
+					directions.WriteString((*ingredient).Alias)
+				} else {
+					directions.WriteString((*ingredient).Name)
+				}
 				if stop, err := cb(*ingredient); err != nil || stop {
 					return directions.String(), err
 				}
@@ -437,7 +447,11 @@ func parseStepCB(line string, cb func(item any) (bool, error)) (string, error) {
 					return directions.String(), err
 				}
 				skipIndex = index + skipNext
-				directions.WriteString((*cookware).Name)
+				if (*cookware).Alias != "" {
+					directions.WriteString((*cookware).Alias)
+				} else {
+					directions.WriteString((*cookware).Name)
+				}
 				if stop, err := cb(*cookware); err != nil || stop {
 					return directions.String(), err
 				}
@@ -676,13 +690,23 @@ func findNodeEndIndex(line string) int {
 func getIngredientFromRawString(s string) (*Ingredient, error) {
 	index := strings.Index(s, "{")
 	if index == -1 {
+		namePart := s
+		aliasIndex := strings.Index(namePart, "|")
+		if aliasIndex != -1 {
+			return &Ingredient{Name: namePart[:aliasIndex], Alias: namePart[aliasIndex+1:], Amount: IngredientAmount{Quantity: 1}}, nil
+		}
 		return &Ingredient{Name: s, Amount: IngredientAmount{Quantity: 1}}, nil
 	}
 	amount, err := getAmount(s[index+1:len(s)-1], 0)
 	if err != nil {
 		return nil, err
 	}
-	return &Ingredient{Name: s[:index], Amount: *amount}, nil
+	namePart := s[:index]
+	aliasIndex := strings.Index(namePart, "|")
+	if aliasIndex != -1 {
+		return &Ingredient{Name: namePart[:aliasIndex], Alias: namePart[aliasIndex+1:], Amount: *amount}, nil
+	}
+	return &Ingredient{Name: namePart, Amount: *amount}, nil
 }
 
 func getAmount(s string, defaultValue float64) (*IngredientAmount, error) {
@@ -707,13 +731,23 @@ func getAmount(s string, defaultValue float64) (*IngredientAmount, error) {
 func getCookwareFromRawString(s string) (*Cookware, error) {
 	index := strings.Index(s, "{")
 	if index == -1 {
+		namePart := s
+		aliasIndex := strings.Index(namePart, "|")
+		if aliasIndex != -1 {
+			return &Cookware{Name: namePart[:aliasIndex], Alias: namePart[aliasIndex+1:], Quantity: 1}, nil
+		}
 		return &Cookware{Name: s, Quantity: 1}, nil
 	}
 	amount, err := getAmount(s[index+1:len(s)-1], 1)
 	if err != nil {
 		return nil, err
 	}
-	return &Cookware{Name: s[:index], Quantity: amount.Quantity, IsNumeric: amount.IsNumeric, QuantityRaw: amount.QuantityRaw}, nil
+	namePart := s[:index]
+	aliasIndex := strings.Index(namePart, "|")
+	if aliasIndex != -1 {
+		return &Cookware{Name: namePart[:aliasIndex], Alias: namePart[aliasIndex+1:], Quantity: amount.Quantity, IsNumeric: amount.IsNumeric, QuantityRaw: amount.QuantityRaw}, nil
+	}
+	return &Cookware{Name: namePart, Quantity: amount.Quantity, IsNumeric: amount.IsNumeric, QuantityRaw: amount.QuantityRaw}, nil
 }
 
 func getTimerFromRawString(s string) (*Timer, error) {
